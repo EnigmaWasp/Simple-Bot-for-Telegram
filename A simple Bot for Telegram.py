@@ -1,30 +1,30 @@
-# Настройки
+# Settings
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 import apiai, json
-updater = Updater(token='ВАШ API ТОКЕН') # Токен API к Telegram
+updater = Updater(token='YOUR API ТОКЕN') # Token API to Telegram
 dispatcher = updater.dispatcher
-# Обработка команд
+# Command processing
 def startCommand(bot, update):
-    bot.send_message(chat_id=update.message.chat_id, text='Привет, давай пообщаемся?')
+    bot.send_message(chat_id=update.message.chat_id, text='Hello, how about a talk?')
 def textMessage(bot, update):
-    request = apiai.ApiAI('ВАШ API ТОКЕН').text_request() # Токен API к Dialogflow
-    request.lang = 'ru' # На каком языке будет послан запрос
-    request.session_id = 'BatlabAIBot' # ID Сессии диалога (нужно, чтобы потом учить бота)
-    request.query = update.message.text # Посылаем запрос к ИИ с сообщением от юзера
+    request = apiai.ApiAI('YOUR API TOKEN').text_request() # Token API to Dialogflow
+    request.lang = 'en' # In what language the request will be sent
+    request.session_id = 'BatlabAIBot' # ID Sessions of the dialogue 
+    request.query = update.message.text # We send a request to the AI with a message from the user
     responseJson = json.loads(request.getresponse().read().decode('utf-8'))
-    response = responseJson['result']['fulfillment']['speech'] # Разбираем JSON и вытаскиваем ответ
-    # Если есть ответ от бота - присылаем юзеру, если нет - бот его не понял
+    response = responseJson['result']['fulfillment']['speech'] # Disassemble JSON and pull out the answer
+    # If there is an answer from the bot we send it to the user, if not - the bot did not understand it
     if response:
         bot.send_message(chat_id=update.message.chat_id, text=response)
     else:
-        bot.send_message(chat_id=update.message.chat_id, text='Я Вас не совсем понял!')
-# Хендлеры
+        bot.send_message(chat_id=update.message.chat_id, text='I do not understand you!')
+# Handlers
 start_command_handler = CommandHandler('start', startCommand)
 text_message_handler = MessageHandler(Filters.text, textMessage)
-# Добавляем хендлеры в диспатчер
+# Add handlers to the dispatch
 dispatcher.add_handler(start_command_handler)
 dispatcher.add_handler(text_message_handler)
-# Начинаем поиск обновлений
+# Getting started for updates
 updater.start_polling(clean=True)
-# Останавливаем бота, если были нажаты Ctrl + C
+# Stop the bot if Ctrl + C was pressed
 updater.idle()
